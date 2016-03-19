@@ -48,7 +48,7 @@ com.sinosoft.mq.ProducerThread
 
 并发测试:
 
-```
+```java
     int threadCount = 100;
     ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
     while (threadCount-- > 0) {
