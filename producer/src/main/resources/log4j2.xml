@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration status="OFF">
+    <appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </appenders>
+    <loggers>
+        <root level="debug">
+            <appender-ref ref="Console"/>
+        </root>
+        <logger name="com.mchange" level="error" additivity="false">
+            <appender-ref ref="Console"/>
+        </logger>
+        <logger name="org.springframework" level="error" additivity="false">
+            <appender-ref ref="Console"/>
+        </logger>
+        <logger name="org.hibernate" level="error" additivity="false">
+            <appender-ref ref="Console"/>
+        </logger>
+        <logger name="org.hibernate.SQL" level="trace" additivity="false">
+            <appender-ref ref="Console"/>
+        </logger>
+        <logger name="org.apache.shiro" level="error" additivity="false">
+            <appender-ref ref="Console"/>
+        </logger>
+    </loggers>
+</configuration>

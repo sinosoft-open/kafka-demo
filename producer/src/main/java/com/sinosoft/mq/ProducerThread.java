@@ -1,0 +1,90 @@
+package com.sinosoft.mq;
+
+import kafka.javaapi.producer.Producer;
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
+
+import java.util.Properties;
+import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+
+/**
+ * Created by yangming on 16/3/19.
+ */
+public class ProducerThread implements Runnable {
+
+    public final static String TOPIC = "com.sinosoft.topic.demo";
+    public final static String HOST = "localhost";
+    public final static String ZOO_PORT = "2181";
+    public final static String KA_PORT = "9092";
+
+    private Producer<String, String> producer = null;
+
+    private String topic;
+    private String key;
+    private String data;
+
+    public String getTopic() {
+        return topic;
+    }
+
+    public void setTopic(String topic) {
+        this.topic = topic;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public ProducerThread(String topic, String key, String data) {
+        this.topic = topic;
+        this.key = key;
+        this.data = data;
+        Properties props = new Properties();
+        props.put("metadata.broker.list", HOST + ":" + KA_PORT);
+        props.put("serializer.class", "kafka.serializer.StringEncoder");
+        props.put("request.required.acks", "-1");
+        ProducerConfig config = new ProducerConfig(props);
+        producer = new Producer<String, String>(config);
+    }
+
+    public void send() {
+        KeyedMessage<String, String> message = new KeyedMessage<String, String>(topic, key, data);
+        producer.send(message);
+        producer.close();
+    }
+
+    @Override
+    public void run() {
+        send();
+    }
+
+
+    public static void main(String[] args) {
+
+        int threadCount = 100;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        while (threadCount-- > 0) {
+            String key = UUID.randomUUID().toString();
+            ProducerThread thread = new ProducerThread(TOPIC, key, "sdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfdsdfsdfsfsfd");
+            System.out.println(threadCount+"  "+key);
+            executorService.submit(thread);
+        }
+
+    }
+
+}
